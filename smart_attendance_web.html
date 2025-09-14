@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Attendance System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 60px;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e1e1;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-bottom: 15px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .role-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 15px 0;
+            cursor: pointer;
+            transition: transform 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .role-card:hover {
+            transform: scale(1.05);
+        }
+        
+        .role-card.student {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .role-card.teacher {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .role-card.driver {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #333;
+        }
+        
+        .role-icon {
+            font-size: 30px;
+            margin-right: 15px;
+        }
+        
+        .role-name {
+            flex-grow: 1;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .arrow {
+            font-size: 20px;
+        }
+        
+        .dashboard {
+            text-align: left;
+        }
+        
+        .dashboard h2 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .feature-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .feature-card:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+        }
+        
+        .feature-icon {
+            font-size: 30px;
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+        
+        .feature-name {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .back-btn {
+            background: #6c757d;
+            margin-bottom: 20px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .toggle-link {
+            color: #667eea;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        
+        .toggle-link:hover {
+            color: #764ba2;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="container">
+        <div class="logo">🎓</div>
+        <h1 id="loginTitle">Login</h1>
+        <p class="subtitle">Smart Attendance System</p>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" required>
+            </div>
+            
+            <div id="emailGroup" class="form-group hidden">
+                <label for="email">Email</label>
+                <input type="email" id="email">
+            </div>
+            
+            <div id="roleGroup" class="form-group hidden">
+                <label for="role">Role</label>
+                <select id="role">
+                    <option value="Student">Student</option>
+                    <option value="Teacher">Teacher</option>
+                    <option value="Driver">Driver</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required>
+            </div>
+            
+            <button type="submit" class="btn" id="loginBtn">
+                <span id="loginBtnText">Login</span>
+                <span id="loginLoader" class="loading hidden"></span>
+            </button>
+        </form>
+        
+        <p class="toggle-link" id="toggleMode">Don't have an account? Register</p>
+    </div>
+    
+    <!-- Role Selection Screen -->
+    <div id="roleScreen" class="container hidden">
+        <div class="logo">🎓</div>
+        <h1>Welcome to Smart Attendance</h1>
+        <p class="subtitle">Select your role to continue</p>
+        
+        <div class="role-card student" onclick="selectRole('Student')">
+            <div class="role-icon">👤</div>
+            <div class="role-name">Student</div>
+            <div class="arrow">→</div>
+        </div>
+        
+        <div class="role-card teacher" onclick="selectRole('Teacher')">
+            <div class="role-icon">👨‍🏫</div>
+            <div class="role-name">Teacher</div>
+            <div class="arrow">→</div>
+        </div>
+        
+        <div class="role-card driver" onclick="selectRole('Driver')">
+            <div class="role-icon">🚌</div>
+            <div class="role-name">Driver</div>
+            <div class="arrow">→</div>
+        </div>
+        
+        <button class="btn back-btn" onclick="logout()">Logout</button>
+    </div>
+    
+    <!-- Dashboard Screen -->
+    <div id="dashboardScreen" class="container hidden">
+        <button class="btn back-btn" onclick="goToRoleSelection()">← Back</button>
+        
+        <div class="dashboard">
+            <h2 id="dashboardTitle">Dashboard</h2>
+            
+            <div class="feature-grid" id="featureGrid">
+                <!-- Features will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isLogin = true;
+        let currentRole = '';
+        
+        // DOM Elements
+        const loginScreen = document.getElementById('loginScreen');
+        const roleScreen = document.getElementById('roleScreen');
+        const dashboardScreen = document.getElementById('dashboardScreen');
+        const loginForm = document.getElementById('loginForm');
+        const loginTitle = document.getElementById('loginTitle');
+        const toggleMode = document.getElementById('toggleMode');
+        const emailGroup = document.getElementById('emailGroup');
+        const roleGroup = document.getElementById('roleGroup');
+        const loginBtn = document.getElementById('loginBtn');
+        const loginBtnText = document.getElementById('loginBtnText');
+        const loginLoader = document.getElementById('loginLoader');
+        
+        // Toggle between login and register
+        toggleMode.addEventListener('click', () => {
+            isLogin = !isLogin;
+            if (isLogin) {
+                loginTitle.textContent = 'Login';
+                loginBtnText.textContent = 'Login';
+                toggleMode.textContent = "Don't have an account? Register";
+                emailGroup.classList.add('hidden');
+                roleGroup.classList.add('hidden');
+            } else {
+                loginTitle.textContent = 'Register';
+                loginBtnText.textContent = 'Register';
+                toggleMode.textContent = 'Already have an account? Login';
+                emailGroup.classList.remove('hidden');
+                roleGroup.classList.remove('hidden');
+            }
+        });
+        
+        // Handle login/register
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                alert('Please fill username and password');
+                return;
+            }
+            
+            // Show loading
+            loginBtnText.classList.add('hidden');
+            loginLoader.classList.remove('hidden');
+            loginBtn.disabled = true;
+            
+            // Simulate authentication delay
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Hide loading
+            loginBtnText.classList.remove('hidden');
+            loginLoader.classList.add('hidden');
+            loginBtn.disabled = false;
+            
+            // Go to role selection
+            showScreen('role');
+        });
+        
+        // Show specific screen
+        function showScreen(screen) {
+            loginScreen.classList.add('hidden');
+            roleScreen.classList.add('hidden');
+            dashboardScreen.classList.add('hidden');
+            
+            switch(screen) {
+                case 'login':
+                    loginScreen.classList.remove('hidden');
+                    break;
+                case 'role':
+                    roleScreen.classList.remove('hidden');
+                    break;
+                case 'dashboard':
+                    dashboardScreen.classList.remove('hidden');
+                    break;
+            }
+        }
+        
+        // Select role and go to dashboard
+        function selectRole(role) {
+            currentRole = role;
+            document.getElementById('dashboardTitle').textContent = `${role} Dashboard`;
+            populateFeatures(role);
+            showScreen('dashboard');
+        }
+        
+        // Populate features based on role
+        function populateFeatures(role) {
+            const featureGrid = document.getElementById('featureGrid');
+            let features = [];
+            
+            switch(role) {
+                case 'Student':
+                    features = [
+                        {name: 'Mark Attendance', icon: '✅'},
+                        {name: 'View Records', icon: '📊'},
+                        {name: 'Schedule', icon: '📅'},
+                        {name: 'Profile', icon: '👤'}
+                    ];
+                    break;
+                case 'Teacher':
+                    features = [
+                        {name: 'Take Attendance', icon: '📝'},
+                        {name: 'View Reports', icon: '📈'},
+                        {name: 'Manage Classes', icon: '🏫'},
+                        {name: 'Student List', icon: '👥'}
+                    ];
+                    break;
+                case 'Driver':
+                    features = [
+                        {name: 'Bus Attendance', icon: '🚌'},
+                        {name: 'Route Info', icon: '🗺️'},
+                        {name: 'Student Count', icon: '👨‍👩‍👧‍👦'},
+                        {name: 'Reports', icon: '📋'}
+                    ];
+                    break;
+            }
+            
+            featureGrid.innerHTML = features.map(feature => `
+                <div class="feature-card" onclick="featureClick('${feature.name}')">
+                    <div class="feature-icon">${feature.icon}</div>
+                    <div class="feature-name">${feature.name}</div>
+                </div>
+            `).join('');
+        }
+        
+        // Handle feature click
+        function featureClick(featureName) {
+            alert(`${featureName} feature coming soon!`);
+        }
+        
+        // Navigation functions
+        function goToRoleSelection() {
+            showScreen('role');
+        }
+        
+        function logout() {
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('email').value = '';
+            showScreen('login');
+        }
+    </script>
+</body>
+</html>
